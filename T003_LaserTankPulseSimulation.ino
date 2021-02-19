@@ -1,10 +1,10 @@
-// Laser
+// Laser Constants
 #ifndef LASERDIGITALPWM
     // D5 - PWM Out to TTL of Laser
     #define LASERDIGITALPWM  5
 #endif
 
-// ISR
+// ISR Constants
 // call ISR - TC4_Handler 20000 times per second
 // an interrupt is called every 50 microseconds so to get:
 // count 1 interrupts = 50us
@@ -24,14 +24,14 @@
 #endif
 
 // ISR vars
-volatile boolean ISR_LaserOn = false;
-volatile int ISR_LaserTargetCount = 0;
-volatile boolean ISR_LaserFire = false;
-volatile int ISR_LaserFireLength = 0;
-volatile int ISR_LaserFireCount = 0;
+volatile boolean ISR_LaserOn = false;       // tells the Arduino to turn on the laser to start the targeting process
+volatile int ISR_LaserTargetCount = 0;      // counts 50 usec pulses to trigger events related to targeting as defined in the code
+volatile boolean ISR_LaserFire = false;     // flag used to indicate when it's time to fire the laser
+volatile int ISR_LaserFireLength = 0;       // var used to hold the users input as to how long you want to laser on
+volatile int ISR_LaserFireCount = 0;        // counts 50 usec pulses to trigger events related to targeting as defined in the code
 
-// Background
-boolean BackgroundHearBeat = false;
+// Background Vars
+boolean BackgroundHearBeat = false;         // used to let us know the background is running
 
 // Start MKR1010 software interrupt functions **********
 uint16_t next_pow2(uint16_t v_)
@@ -44,6 +44,7 @@ uint16_t next_pow2(uint16_t v_)
     v_|=v_>>8;
     return v_+1;
 }
+
 uint16_t get_clk_div(uint32_t freq_)
 {
     float ideal_clk_div=48000000.0f/(256.0f*float(freq_));
@@ -56,6 +57,7 @@ uint16_t get_clk_div(uint32_t freq_)
     }
     return clk_div;
 }
+
 void setup_timer4(uint32_t freq_)
 {
     uint16_t clk_div=get_clk_div(freq_);
@@ -181,7 +183,7 @@ void loop()
         Serial.println(S_input);
     }
 
-    // Target LED to on
+    // Targeting on/off
     if(S_input == "on") {
         ISR_LaserOn = true;
         S_input = "";
@@ -192,7 +194,7 @@ void loop()
         S_input = "";
     }
 
-    // Fire Set the Fire LED to on for user defined time
+    // Fire Laser for user defined time
     if(S_input.length() > 0) {
         // remove the L
         S_input.remove(0, 1);
